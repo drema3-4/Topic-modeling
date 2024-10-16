@@ -33,6 +33,7 @@
 \usepackage[english,russian]{babel}
 \usepackage{tempora}
 \usepackage{minted}
+\usepackage{cancel}
 
 \usepackage[colorlinks=true]{hyperref}
 
@@ -201,43 +202,115 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Элементарное решение обратной задачи}
-Тематическое моделирование ищет величину $p(w|d)$, чтобы её вычислить нужно
-знать вероятности $p(w|t) = \phi_{wt}$ и $p(t|d) = \theta_{td}$.
-
-По определению:
+\subsection{название не придумал}
+Для решения задачи тематического моделирования необходимо найти величину
+$p(w|d)$, сделать это можно с помощью метода максимального правдоподобия
 \begin{equation}
-    \phi_{wt} = \frac{n_{wt}}{n_{t}} = \frac{\sum_d n_{dwt}}{\sum_{d,w} n_{dwt}}
-\end{equation}
-и
-\begin{equation}
-    \theta_{td} = \frac{n_{td}}{n_{d}} = \frac{\sum_w n_{dwt}}{\sum_{t,w} 
-    n_{dwt}}
+    \prod^n_{i = 1} p(d_i, w_i) = \prod_{d \in D} \prod_{w \in d} p(d, w)^{
+        n_{dw}},
 \end{equation}
 
-Следовательно, для решения задачи, осталось вычислить величину $n_{dwt}$.
-
-Выразим $p(t|d, w) = \frac{n_{dwt}}{n_{dw}}$ через матрицы $\phi_{wt},
-\theta_{td}$ по формуле Байеса:
+следовательно,
 \begin{equation}
-    p(t|d, w) = \frac{p(w, t|d)}{p(w|d)} = \frac{p(w|t)p(t|d)}{p(w|d)} =
-    \frac{\phi_{wt} \theta_{td}}{\sum_s \phi_{ws} \theta_{ws}}
+    \sum_{d \in D} \sum_{w \in d} n_{dw} \ln{p(w|d)
+    \underset{const}{\xcancel{p(d)}}} = n_{dw} \to max
 \end{equation}
 
-Туперь задачу тематического моделирования можно переписать в виде системы
-уравнений относительно $\phi_{wt}, \theta_{td}, n_{dwt}$:
+Данная задача эквивалентна задачи максимизации функционала
+\begin{equation}
+    L(\Phi, \Theta) = \sum_{d \in D} \sum_{w \in d} n_{dw} \ln{\sum_{t \in T}
+    \phi_{wt} \theta_{td}} \to \underset{\Phi, \Theta}{max}
+\end{equation}
+
+при ограничениях неотрицательности и нормировки
+$$ \phi_{wt} \geq 0; \;\; \sum_{w \in W} \phi_{wt} = 1; \;\;\; \theta_{td}
+\geq 0; \;\; \sum_{t \in T} \theta_{td} = 1.$$
+
+Из ограничений следует, что сумма элементов столбцов матриц равна единице и
+каждый их элемент равен больше или равен нулю. Тогда задачу можно свести к
+задаче максимизации функции на единичных симплексах:
+
+Пусть $\Omega = (w_j)_{j \in J}$ - набор нормированных неотрицательных векторов
+$w_j = (w_{ij})_{i \in I_j}$ различных размерностей $|I_j|$.
+
+Задача максимизации функции $f(\Omega)$ на единичных симплексах:
 \begin{equation}
     \begin{cases}
-        n_{dwt} = n_{dw} \frac{\phi_{wt}\theta_{td}}{\sum_s \phi_{wt}
-        \theta_{td}}, \;\; d \in D, w \in W, t \in T \\
-        \phi_{wt} = \frac{\sum_d n_{dwt}}{\sum_{d, w} n_{dwt}}, \;\; w \in W,
-        t \in T \\
-        \theta_{td} = \frac{\sum_w n_{dwt}}{\sum{t, w} n_{dwt}}, \;\; d \in D,
-        t \in T
+        f(\Omega) \to \underset{\Omega}{max}; \\
+        \sum_{i \in I_j} w_{ij} = 1, \;\; j \in J; \\
+        w_{ij} \geq 0, \;\; i \in I_j, \;\; j \in J.
     \end{cases}
 \end{equation}
 
+Операция нормировки вектора: $p_i = \underset{i \in I}(x_i) =
+\frac{\max{x_i, 0}}{\sum_{k \in I} \max{x_k, 0}}$.
 
+Лемма о максимизации функции на единичных симплексах:
+
+Пусть $f(\Omega)$ непрерывно дифференцируема по $\Omega$. Тогда векторы $w_j$
+локального экстремума задачи $f(\Omega) \to \max$ удовлетворяют системе
+уравнений:
+\begin{equation}
+    \begin{cases}
+        w_{ij} = \underset{i \in I_j}{norm}\left(w_{ij}
+        \frac{\partial f}{\partial w_{ij}}\right), \;\;\; \text{если }
+        \exists i: w_{ij} \frac{\partial f}{\partial w_{ij}} > 0 \\
+        w_{ij} = \underset{i \in I_j}{norm}\left(-w_{ij}
+        \frac{\partial f}{\partial w_{ij}}\right), \;\;\; \text{иначе, если }
+        \exists i: w_{ij}\frac{\partial f}{\partial w_{ij}} < 0 \\
+        w_{ij}\frac{\partial f}{\partial w_{ij}} = 0, \;\;\; \text{иначе}
+    \end{cases}
+\end{equation}
+
+Тогда исходная задача принимает следующий вид:
+\begin{equation}
+    \begin{cases}
+        p_{tdw} = p(t|d, w) = \underset{t \in T}{norm}(\phi_{wt}\theta_{td}) \\
+        \phi_{wt} = \underset{w \in W}{norm}(n_{wt}) \\
+        \theta_{td} = \underset{t \in T}{norm}(n_{td})
+    \end{cases}
+\end{equation}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{название не придумалл}
+Описанная в прошлом разделе модель не является корректно заданной, так как
+у этой системы уравнений может быть несколько решений, следовательно решение
+нужно конкретизировать с помощью регуляризации.
+
+Регуляризация "--- стандартный приём доопределения решения с помощью
+дополнительных критериев.
+
+Таким образом, добавим некоторый регуляризатор $R(\Phi, \Theta) = \sum_i
+\tau_i R_i(\Phi, \Theta)$ к задаче
+максимизации логарифма правдоподобия:
+\begin{equation}
+    \sum_{d, w} n_{dw} \ln{\sum_{t \in T} \phi_{wt} \theta_{td}} + R(\Phi,
+    \Theta) \to \underset{\Phi, \Theta}{\max};
+\end{equation}
+
+Тогда система уравнения примет вид:
+\begin{equation}
+    \begin{cases}
+        p_{tdw} = p(t|d, w) = \underset{t \in T}{norm}(\phi_{wt}\theta_{td}) \\
+        \phi_{wt} = \underset{w \in W}{norm}\left(n_{wt} + \phi_{wt}
+        \frac{\partial R}{\partial \phi_{wt}}\right) \\
+        \theta_{td} = \underset{t \in T}{norm}\left(n_{td} + \theta_{td}
+        \frac{\partial R}{\partial \theta_{td}}\right)
+    \end{cases}
+\end{equation}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Сглаживание}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Разреживание}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Декоррелирование}
 
 % Раздел "Заключение"
 \conclusion

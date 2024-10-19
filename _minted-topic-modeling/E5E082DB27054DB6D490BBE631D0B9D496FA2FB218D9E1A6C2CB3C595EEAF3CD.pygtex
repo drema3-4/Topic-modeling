@@ -1,0 +1,16 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+    \PYG{n}{new\PYGZus{}words} \PYG{o}{=} \PYG{p}{[]}
+    \PYG{c+c1}{\PYGZsh{} перебираем список слов}
+    \PYG{k}{for} \PYG{n}{word} \PYG{o+ow}{in} \PYG{n}{words}\PYG{p}{:}
+        \PYG{c+c1}{\PYGZsh{} проверяем какому алфавиту принадлежат символы слова}
+        \PYG{k}{if} \PYG{n}{re}\PYG{o}{.}\PYG{n}{match}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}[а\PYGZhy{}я]\PYGZsq{}}\PYG{p}{,} \PYG{n}{word}\PYG{p}{):}
+            \PYG{c+c1}{\PYGZsh{} если слово не принадлежит списку стоп слов}
+            \PYG{k}{if} \PYG{n}{word} \PYG{o+ow}{not} \PYG{o+ow}{in} \PYG{p}{(}\PYG{n}{stopwords}\PYG{o}{.}\PYG{n}{words}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}russian\PYGZsq{}}\PYG{p}{)):}
+                \PYG{c+c1}{\PYGZsh{} добавляем слово в новый список слов}
+                \PYG{n}{new\PYGZus{}words}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{word}\PYG{p}{)}
+        \PYG{k}{elif} \PYG{n}{re}\PYG{o}{.}\PYG{n}{match}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}[a\PYGZhy{}z]\PYGZsq{}}\PYG{p}{,} \PYG{n}{word}\PYG{p}{):}
+            \PYG{c+c1}{\PYGZsh{} если слово не принадлежит списку стоп слов}
+            \PYG{k}{if} \PYG{n}{word} \PYG{o+ow}{not} \PYG{o+ow}{in} \PYG{n}{stopwords}\PYG{o}{.}\PYG{n}{words}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}english\PYGZsq{}}\PYG{p}{):}
+                \PYG{c+c1}{\PYGZsh{} добавляем слово в новый список слов}
+                \PYG{n}{new\PYGZus{}words}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{word}\PYG{p}{)}
+\end{Verbatim}

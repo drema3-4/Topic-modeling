@@ -1,0 +1,4 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+    \PYG{c+c1}{\PYGZsh{} перевести текст в нижний регистр}
+    \PYG{o}{\PYGZlt{}}\PYG{n}{text}\PYG{o}{\PYGZgt{}.}\PYG{n}{lower}\PYG{p}{()}
+\end{Verbatim}

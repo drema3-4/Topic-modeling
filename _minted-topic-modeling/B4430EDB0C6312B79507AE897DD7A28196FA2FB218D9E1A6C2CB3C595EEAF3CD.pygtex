@@ -1,0 +1,7 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+    \PYG{n}{n\PYGZus{}gramms} \PYG{o}{=} \PYG{p}{[]}
+    \PYG{c+c1}{\PYGZsh{} перебираем предложения и составляем список n\PYGZhy{}грамм}
+    \PYG{k}{for} \PYG{n}{sentence} \PYG{o+ow}{in} \PYG{n}{sentences}\PYG{p}{:}
+        \PYG{c+c1}{\PYGZsh{} делаем n граммы и добавляем их в список n\PYGZhy{}грамм}
+        \PYG{n}{n\PYGZus{}gramms}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{sentence}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{} \PYGZsq{}}\PYG{p}{),} \PYG{o}{\PYGZlt{}}\PYG{n}{n}\PYG{o}{\PYGZgt{}}\PYG{p}{)}
+\end{Verbatim}

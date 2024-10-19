@@ -1,0 +1,6 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+    \PYG{c+c1}{\PYGZsh{} разделить текст на предложения}
+    \PYG{n}{nltk}\PYG{o}{.}\PYG{n}{sent\PYGZus{}tokenize}\PYG{p}{(}\PYG{o}{\PYGZlt{}}\PYG{n}{sentences}\PYG{o}{\PYGZgt{}}\PYG{p}{)}
+    \PYG{c+c1}{\PYGZsh{} разделить предложение на слова}
+    \PYG{n}{nltk}\PYG{o}{.}\PYG{n}{word\PYGZus{}tokenize}\PYG{p}{(}\PYG{o}{\PYGZlt{}}\PYG{n}{sentence}\PYG{o}{\PYGZgt{}}\PYG{p}{)}
+\end{Verbatim}

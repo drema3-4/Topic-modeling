@@ -1,0 +1,10 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+    \PYG{c+c1}{\PYGZsh{} data\PYGZus{}path \PYGZhy{} путь к vowpal\PYGZus{}wabbit файлу}
+    \PYG{c+c1}{\PYGZsh{} data\PYGZus{}format \PYGZhy{} формат загружаемого файла \PYGZhy{} vowpal\PYGZus{}wabbit}
+    \PYG{c+c1}{\PYGZsh{} batch\PYGZus{}size \PYGZhy{} количество документов в одном батче}
+    \PYG{c+c1}{\PYGZsh{} target\PYGZus{}folder \PYGZhy{} папка, в которую батчи сохран€ютс€}
+    \PYG{n}{bv} \PYG{o}{=} \PYG{n}{artm}\PYG{o}{.}\PYG{n}{BatchVectorizer}\PYG{p}{(} \PYG{n}{data\PYGZus{}path} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}vw.txt\PYGZsq{}}\PYG{p}{,}
+                               \PYG{n}{data\PYGZus{}format} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}vowpal\PYGZus{}wabbit\PYGZsq{}}\PYG{p}{,}
+                               \PYG{n}{batch\PYGZus{}size}\PYG{o}{=}\PYG{l+m+mi}{3000}\PYG{p}{,}
+                               \PYG{n}{target\PYGZus{}folder}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}batches\PYGZsq{}} \PYG{p}{)}
+\end{Verbatim}

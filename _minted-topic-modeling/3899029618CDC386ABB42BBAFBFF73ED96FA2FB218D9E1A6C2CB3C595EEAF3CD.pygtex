@@ -1,0 +1,18 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+    \PYG{c+c1}{\PYGZsh{} num\PYGZus{}topics \PYGZhy{} количество тем}
+    \PYG{c+c1}{\PYGZsh{} num\PYGZus{}document\PYGZus{}passes \PYGZhy{} количество проходов по каждому документу (новости)}
+    \PYG{c+c1}{\PYGZsh{} dictionary \PYGZhy{} словарь}
+    \PYG{c+c1}{\PYGZsh{} class\PYGZus{}ids \PYGZhy{} веса для модальностей}
+    \PYG{c+c1}{\PYGZsh{} создание модели}
+    \PYG{n}{model} \PYG{o}{=} \PYG{n}{artm}\PYG{o}{.}\PYG{n}{ARTM}\PYG{p}{(} \PYG{n}{num\PYGZus{}topics}\PYG{o}{=}\PYG{l+m+mi}{7}\PYG{p}{,}
+                       \PYG{n}{num\PYGZus{}document\PYGZus{}passes}\PYG{o}{=}\PYG{l+m+mi}{3}\PYG{p}{,}
+                       \PYG{n}{dictionary}\PYG{o}{=}\PYG{n}{bv}\PYG{o}{.}\PYG{n}{dictionary}\PYG{p}{,}
+                       \PYG{n}{class\PYGZus{}ids}\PYG{o}{=}\PYG{p}{\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}@default\PYGZus{}class\PYGZsq{}}\PYG{p}{:} \PYG{l+m+mf}{1.0}\PYG{p}{\PYGZcb{})}
+    \PYG{c+c1}{\PYGZsh{} добавление метрик}
+    \PYG{n}{model}\PYG{o}{.}\PYG{n}{scores}\PYG{o}{.}\PYG{n}{add}\PYG{p}{(}\PYG{n}{artm}\PYG{o}{.}\PYG{n}{PerplexityScore}\PYG{p}{(}\PYG{n}{name}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}perplexity\PYGZsq{}}\PYG{p}{,} \PYG{n}{dictionary}\PYG{o}{=}\PYG{n}{bv}\PYG{o}{.}\PYG{n}{dictionary}\PYG{p}{))}
+    \PYG{c+c1}{\PYGZsh{} сохранения топа слов для каждой темы}
+    \PYG{n}{model}\PYG{o}{.}\PYG{n}{scores}\PYG{o}{.}\PYG{n}{add}\PYG{p}{(}\PYG{n}{artm}\PYG{o}{.}\PYG{n}{TopTokensScore}\PYG{p}{(}\PYG{n}{name}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}top\PYGZhy{}tokens\PYGZsq{}}\PYG{p}{,} \PYG{n}{num\PYGZus{}tokens}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{))}
+    \PYG{c+c1}{\PYGZsh{} добавление регуляризаторов, например, декоррелятора}
+    \PYG{c+c1}{\PYGZsh{} tau \PYGZhy{} коэффициент регуляризации}
+    \PYG{n}{model}\PYG{o}{.}\PYG{n}{regularizers}\PYG{o}{.}\PYG{n}{add}\PYG{p}{(}\PYG{n}{artm}\PYG{o}{.}\PYG{n}{DecorrelatorPhiRegularizer}\PYG{p}{(}\PYG{n}{name}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}decorrelator\PYGZsq{}}\PYG{p}{,} \PYG{n}{tau}\PYG{o}{=}\PYG{l+m+mf}{2e7}\PYG{p}{))}
+\end{Verbatim}

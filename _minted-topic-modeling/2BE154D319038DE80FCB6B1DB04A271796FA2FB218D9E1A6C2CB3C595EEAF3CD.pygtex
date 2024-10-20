@@ -1,0 +1,16 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+    \PYG{c+c1}{\PYGZsh{} считываем excel таблицу в pandas DataFrame}
+    \PYG{n}{data} \PYG{o}{=} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{read\PYGZus{}excel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}news.xlsx\PYGZsq{}}\PYG{p}{)}
+    \PYG{c+c1}{\PYGZsh{} открываем файл для записи vowpal\PYGZus{}wabbit файла}
+    \PYG{n}{f} \PYG{o}{=} \PYG{n+nb}{open}\PYG{p}{(}\PYG{o}{\PYGZlt{}}\PYG{n}{path}\PYG{o}{\PYGZgt{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}w\PYGZsq{}}\PYG{p}{)}
+    \PYG{c+c1}{\PYGZsh{} проходимся по строкам DataFrame}
+    \PYG{k}{for} \PYG{n}{string} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{data}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]):}
+        \PYG{c+c1}{\PYGZsh{} записываем отдельную новость в файл как отдельный документ}
+        \PYG{n}{f}\PYG{o}{.}\PYG{n}{write}\PYG{p}{(} \PYG{l+s+s1}{\PYGZsq{}doc\PYGZus{}}\PYG{l+s+si}{\PYGZob{}0\PYGZcb{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{o}{.}\PYG{n}{format}\PYG{p}{(}\PYG{n}{string}\PYG{p}{)}
+               \PYG{o}{+} \PYG{n}{data}\PYG{o}{.}\PYG{n}{loc}\PYG{p}{[}\PYG{n}{string}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}title\PYGZsq{}}\PYG{p}{]}
+               \PYG{o}{+} \PYG{l+s+s1}{\PYGZsq{} \PYGZsq{}}
+               \PYG{o}{+} \PYG{n}{data}\PYG{o}{.}\PYG{n}{loc}\PYG{p}{[}\PYG{n}{string}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}content\PYGZsq{}}\PYG{p}{]}
+               \PYG{o}{+} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+    \PYG{c+c1}{\PYGZsh{} после записи закрываем файл}
+    \PYG{n}{f}\PYG{o}{.}\PYG{n}{close}\PYG{p}{()}
+\end{Verbatim}

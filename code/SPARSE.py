@@ -5,75 +5,99 @@ from nltk import ngrams
 news = pd.read_excel('prepeared_news.xlsx')
 
 # Датасет с результатами моделирования
-columns = ['model', 'num_topics', 'num_collection_passes', 'num_doc_passes', 'n-grams', 'perplexity', 'phi_sparsity', 'theta_sparsity']
+columns = ['model', 'num_topics', 'num_collection_passes', 'num_doc_passes', 'tau', 'n-grams', 'perplexity', 'phi_sparsity', 'theta_sparsity']
 results = pd.DataFrame(columns=columns)
 
 # Функция для вычисления частоты слов
 def calc_words_frequency(data: pd.DataFrame) -> dict:
-  words_frequency = dict()
+    words_frequency = {}
 
-  for string in range(data.shape[0]):
-    words = data.iloc[string, 'title'].split(' ') + data.iloc[string, 'content'].split(' ')
+    for string in range(data.shape[0]):
+      if type(data.loc[string, 'title']) == str:
+          for word in nltk.word_tokenize(data.loc[string, 'title']):
+              if word in words_frequency.keys():
+                  words_frequency[word] += 1
+              else:
+                  words_frequency[word] = 1
 
-    for word in words:
-      if word in words_frequency.keys:
-        words_frequency[word] += 1
-      else:
-        words_frequency[word] = 1
+      if type(data.loc[string, 'content']) == str:
+          for word in nltk.word_tokenize(data.loc[string, 'content']):
+              if word in words_frequency.keys():
+                  words_frequency[word] += 1
+              else:
+                  words_frequency[word] = 1
 
-  return words_frequency
+    return words_frequency
 
 # Функция создания vowpal_wabbit файла (каждая новость - отдельный документ)
 def make_vowpal_wabbit(data: pd.DataFrame, path: str, words_frequency: dict) -> None:
     f = open(path, 'w')
 
     for string in range(data.shape[0]):
-      words = data.iloc[string, 'title'].split(' ') + data.iloc[string, 'content'].split(' ')
+      words = []
+      if type(data.loc[string, 'title']) == str:
+        words += nltk.word_tokenize(data.loc[string, 'title'])
+
+      if type(data.loc[string, 'content']) == str:
+        words += nltk.word_tokenize(data.loc[string, 'content'])
 
       string_ = ''
       for word in words:
-        if words_frequency[word] > 4:
-          string_ += word + ' '
-      string_ = string_[:-1]
+        if word in words_frequency.keys():
+          if words_frequency[word] > 4:
+            string_ += word + ' '
 
       if len(string_) > 4:
+        string_ = string_[:-1]
         f.write('doc_{0} '.format(string) + string_ + '\n')
 
     f.close()
 
 # Функция создания vowpal_wabbit файла с биграммами (каждая новость - отдельный документ)
-def make_vowpal_wabbit_bigramm(data: pd.DataFrame, path: str) -> None:
+def make_vowpal_wabbit_bigramm(data: pd.DataFrame, path: str, words_frequency: dict) -> None:
     f = open(path, 'w')
 
     for string in range(data.shape[0]):
-      words = data.iloc[string, 'title'].split(' ') + data.iloc[string, 'content'].split(' ')
+      words = []
+      if type(data.loc[string, 'title']) == str:
+        words += nltk.word_tokenize(data.loc[string, 'title'])
 
-      for_paste = ''
+      if type(data.loc[string, 'content']) == str:
+        words += nltk.word_tokenize(data.loc[string, 'content'])
+
+      string_ = ''
       for word in words:
-        if words_frequency[word] > 4:
-          for_paste += word + ' '
-      for_paste = for_paste[:-1]
+        if word in words_frequency.keys():
+          if words_frequency[word] > 4:
+            string_ += word + ' '
 
-      if len(for_paste) > 0:
-        f.write('doc_{0} '.format(string) + ' '.join(['_'.join(x) for x in list(ngrams(for_paste.split(' '), 2))]) + '\n')
+      if len(string_) > 0:
+        string_ = string_[:-1]
+        f.write('doc_{0} '.format(string) + ' '.join(['_'.join(x) for x in list(ngrams(string_.split(' '), 2))]) + '\n')
 
     f.close()
 
 # Функция создания vowpal_wabbit файла с триграммами (каждая новость - отдельный документ)
-def make_vowpal_wabbit_trigramm(data: pd.DataFrame, path: str) -> None:
+def make_vowpal_wabbit_trigramm(data: pd.DataFrame, path: str, words_frequency: dict) -> None:
     f = open(path, 'w')
 
     for string in range(data.shape[0]):
-      words = data.iloc[string, 'title'].split(' ') + data.iloc[string, 'content'].split(' ')
+      words = []
+      if type(data.loc[string, 'title']) == str:
+        words += nltk.word_tokenize(data.loc[string, 'title'])
 
-      for_paste = ''
+      if type(data.loc[string, 'content']) == str:
+        words += nltk.word_tokenize(data.loc[string, 'content'])
+
+      string_ = ''
       for word in words:
-        if words_frequency[word] > 4:
-          for_paste += word + ' '
-      for_paste = for_paste[:-1]
+        if word in words_frequency.keys():
+          if words_frequency[word] > 4:
+            string_ += word + ' '
 
-      if len(for_paste) > 0:
-        f.write('doc_{0} '.format(string) + ' '.join(['_'.join(x) for x in list(ngrams(for_paste.split(' '), 3))]) + '\n')
+      if len(string_) > 0:
+        string_ = string_[:-1]
+        f.write('doc_{0} '.format(string) + ' '.join(['_'.join(x) for x in list(ngrams(string_.split(' '), 3))]) + '\n')
 
     f.close()
 
@@ -124,4 +148,4 @@ def make_and_train_SPARSE(num_topics: list[int], num_collection_passes: list[int
                                                   model.score_tracker['sparsity_theta_score'].last_value ]
           
 # Создаём и обучаем модель
-make_and_train_SPARSE([8], [24], [7], [0.5, 1.0, 1.5, 2.0])
+make_and_train_SPARSE([8], [24], [7], [-0.5, -1.0, -1.5, -2.0])

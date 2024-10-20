@@ -8,9 +8,11 @@
     \PYG{k}{for} \PYG{n}{word} \PYG{o+ow}{in} \PYG{n}{words}\PYG{p}{:}
         \PYG{c+c1}{\PYGZsh{} проверяем какому алфавиту принадлежат символы слова}
         \PYG{k}{if} \PYG{n}{re}\PYG{o}{.}\PYG{n}{match}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}[а\PYGZhy{}я]\PYGZsq{}}\PYG{p}{,} \PYG{n}{word}\PYG{p}{):}
-            \PYG{c+c1}{\PYGZsh{} лемматизируем слово на русском и добавляем его в новый список слов}
+            \PYG{c+c1}{\PYGZsh{} лемматизируем слово на русском и добавляем его}
+            \PYG{c+c1}{\PYGZsh{} в новый список слов}
             \PYG{n}{new\PYGZus{}words}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{lemm\PYGZus{}pymorphy2}\PYG{o}{.}\PYG{n}{parse}\PYG{p}{(}\PYG{n}{word}\PYG{p}{)[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{normal\PYGZus{}form}\PYG{p}{)}
         \PYG{k}{elif} \PYG{n}{re}\PYG{o}{.}\PYG{n}{match}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}[a\PYGZhy{}z]\PYGZsq{}}\PYG{p}{,} \PYG{n}{word}\PYG{p}{):}
-            \PYG{c+c1}{\PYGZsh{} лемматизируем слово на английском и добавляем его в новый список слов}
+            \PYG{c+c1}{\PYGZsh{} лемматизируем слово на английском и добавляем его}
+            \PYG{c+c1}{\PYGZsh{} в новый список слов}
             \PYG{n}{new\PYGZus{}words}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{lemm\PYGZus{}nltk}\PYG{o}{.}\PYG{n}{lemmatize}\PYG{p}{(}\PYG{n}{word}\PYG{p}{))}
 \end{Verbatim}

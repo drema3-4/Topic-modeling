@@ -464,7 +464,7 @@ $R_i(\Phi, \Theta)$ с неотрицательными коэффициентами регуляризации $t\tau_i, \;
 \end{equation}
 
 Перепишем EM"=флгоритм~\ref{eq:03} в соответствии с полученной формулой:
-\begin{equation}
+\begin{equation} \label{eq:04}
     \begin{cases}
         p_{tdw} = \underset{t \in T}{norm}(\phi_{wt}\theta_{td}) \\
         \phi_{wt} = \underset{w \in W}{norm}\left(n_{wt} + \beta_0\beta_w
@@ -506,7 +506,7 @@ $\alpha_t$.
 \end{equation}
 
 Перепишем EM"=флгоритм~\ref{eq:03} в соответствии с полученной формулой:
-\begin{equation}
+\begin{equation} \label{eq:05}
     \begin{cases}
         p_{tdw} = \underset{t \in T}{norm}(\phi_{wt}\theta_{td}) \\
         \phi_{wt} = \underset{w \in W}{norm}\left(n_{wt} - \beta_0\beta_w
@@ -536,7 +536,7 @@ $\alpha_t$.
 \end{equation}
 
 Перепишем EM"=флгоритм~\ref{eq:03} в соответствии с полученной формулой:
-\begin{equation}
+\begin{equation} \label{eq:06}
     \begin{cases}
         p_{tdw} = \underset{t \in T}{norm}(\phi_{wt}\theta_{td}) \\
         \phi_{wt} = \underset{w \in W}{norm}\left(n_{wt} - \tau\phi_{wt}
@@ -640,7 +640,8 @@ $N_{uv}$ "--- число документов, в которых слова $u, v$ хотя бы один раз
 матриц. Оптимальный уровень разреженности должен быть высоким, но не чрезмерным:
 в таком случае темы будут четко различимы. Если разреженность слишком низка,
 темы могут сливаться, а если слишком высока "--- содержать недостаточное
-количество слов для адекватного представления.
+количество слов для адекватного
+представления~\cite{teorver, all, pdflec3, videolec3}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -656,7 +657,8 @@ $W_t = \{w: p(w|t) > \alpha\}, \text{где $\alpha$ подбирается по разному,
 например $\alpha = 0.25$ или $\alpha = \frac{1}{|W|}$}$.
 
 Данная характеристика показывает как вероятностно относится ядро темы к фоновым
-словам темы, следовательно, чем больше вероятность ядра, тем лучше.
+словам темы, следовательно, чем больше вероятность ядра, тем
+лучше~\cite{teorver, all, pdflec3, videolec3}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -669,7 +671,7 @@ $W_t = \{w: p(w|t) > \alpha\}, \text{где $\alpha$ подбирается по разному,
 
 Данная характеристика показывает насколько часто слова из ядра темы
 встречаются в других темах, очевидно, что чем меньше ядро будет встречаться
-в других темах, тем лучше. 
+в других темах, тем лучше~\cite{teorver, all, pdflec3, videolec3}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Тематическое моделирование новостей}
@@ -689,8 +691,12 @@ beuatifulsoap4 и selenium.
     \item перевод текста в нижний регистр;
     \item удаление неалфавитных символов;
     \item удаление стоп слов;
-    \item лемматизация.
+    \item лемматизация;
+    \item создание n"=грамм.
 \end{itemize}
+
+После выполнения вышеописанных операций можно будет приступать к самому
+тематическому моделированию~\cite{videolec4, python-book, predobr}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -726,10 +732,14 @@ python:
     # перебираем символы некоторого слова
     for symbol in word:
         # если символ принадлежит русскому или английскому алфавитам
-        if (symbol >= 'a' and symbol <= 'z' or symbol >= 'а' and symbol <= 'я'):
+        if ( symbol >= 'a' and symbol <= 'z'
+             or symbol >= 'а' and symbol <= 'я' ):
             # добавляем символ в новое слово
             new_word += symbol
 \end{minted}
+
+Таким образом, получим разбитый на слова текст, не содержащий неалфавитных
+символов~\cite{videolec4, python-book, predobr}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -761,6 +771,9 @@ python:
                 new_words.append(word)
 \end{minted}
 
+Таким образом, получим список слов, в котором будет отсутствовать большинство
+стоп"=слов~\cite{videolec4, python-book, predobr}.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -780,12 +793,17 @@ python:
     for word in words:
         # проверяем какому алфавиту принадлежат символы слова
         if re.match('[а-я]', word):
-            # лемматизируем слово на русском и добавляем его в новый список слов
+            # лемматизируем слово на русском и добавляем его
+            # в новый список слов
             new_words.append(lemm_pymorphy2.parse(word)[0].normal_form)
         elif re.match('[a-z]', word):
-            # лемматизируем слово на английском и добавляем его в новый список слов
+            # лемматизируем слово на английском и добавляем его
+            # в новый список слов
             new_words.append(lemm_nltk.lemmatize(word))
 \end{minted}
+
+Таким образом, получим список слов, приведённых к их начальной
+форме~\cite{videolec4, python-book, predobr}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -805,6 +823,9 @@ N"=грамма "--- это склеивание слов в словосочетание, слов может быть несколько.
         # делаем n граммы и добавляем их в список n-грамм
         n_gramms.append(sentence.split(' '), <n>)
 \end{minted}
+
+Таким образом, получим список n"=грамм, составленный из начального списка
+слов~\cite{videolec4, python-book, predobr}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -858,7 +879,7 @@ pandas и numpy языка python.
 \end{itemize}
 
 Программу вычисляющую количественные характеристики датасета можно найти
-в приложениях.
+в приложениях~\cite{python-book, pandas, numpy}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -907,7 +928,8 @@ pandas и numpy языка python.
 Наконец, можно создать саму модель, делается это следующим образом:
 \begin{minted}{python}
     # num_topics - количество тем
-    # num_document_passes - количество проходов по каждому документу (новости)
+    # num_document_passes - количество проходов
+    # по каждому документу (новости)
     # dictionary - словарь
     # class_ids - веса для модальностей
     # создание модели
@@ -916,12 +938,14 @@ pandas и numpy языка python.
                        dictionary=bv.dictionary,
                        class_ids={'@default_class': 1.0})
     # добавление метрик
-    model.scores.add(artm.PerplexityScore(name='perplexity', dictionary=bv.dictionary))
+    model.scores.add( artm.PerplexityScore( name='perplexity',
+                      dictionary=bv.dictionary ) )
     # сохранения топа слов для каждой темы
     model.scores.add(artm.TopTokensScore(name='top-tokens', num_tokens=10))
     # добавление регуляризаторов, например, декоррелятора
     # tau - коэффициент регуляризации
-    model.regularizers.add(artm.DecorrelatorPhiRegularizer(name='decorrelator', tau=2e7))
+    model.regularizers.add( artm.DecorrelatorPhiRegularizer( name='decorrelator',
+                                                             tau=2e7 ) )
 \end{minted}
 
 Метрик качества, а также регуляризаторов можно добавить сразу несколько.
@@ -941,18 +965,22 @@ pandas и numpy языка python.
     top_tokens = model.score_tracker['top-tokens'].last_value
 \end{minted}
 
+Таким образом, получим обученную тематическую
+модель~\cite{videolec4, python-book, bigartm-book, bigartm, pandas}.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{PLSA (модель без регуляризаторов)}
-Модели PLSA соответствует EM"=алгоритм без регуляризаторов. Данную модель
-можно создать средствами библиотеки BigARTM следующим образом:
+Модели PLSA соответствует EM"=алгоритм без регуляризаторов~\ref{eq:03}.
+Данную модель можно создать средствами библиотеки BigARTM следующим образом:
 \begin{minted}{python}
     model = artm.ARTM( num_topics=param1,
                        num_document_passes=param3,
                        dictionary=bv.dictionary,
                        class_ids={'@default_class': 1.0} )
 
-    model.scores.add(artm.PerplexityScore(name='perplexity', dictionary=bv.dictionary))
+    model.scores.add( artm.PerplexityScore( name='perplexity',
+                                            dictionary=bv.dictionary ) )
     model.scores.add(artm.SparsityPhiScore(name='sparsity_phi_score'))
     model.scores.add(artm.SparsityThetaScore(name='sparsity_theta_score'))
     model.scores.add(artm.TopTokensScore(name='top-tokens', num_tokens=10))
@@ -961,25 +989,31 @@ pandas и numpy языка python.
 Для оценки качества модели выбраны такие характеристика как перплексия и
 разреженность (по матрицам $\Phi$ и $\Theta$).
 
-На место параметров модели (param1, param3) в функции создания и обучения,
+На место параметров модели (param1, param3) в функции создания и обучения
+(обучение будет происходить на простых словах, биграммах и триграммах),
 которую можно увидеть в приложениях, будут подставляться значения из некоторого
 набора, затем модель будет обучаться param2 раз. После обучения будет выведена
 соответствующая таблица с результатами по моделям.
 
 В результате получаем следующую таблицу:
 
+
+~\cite{all, videolec4, python-book, bigartm-book, bigartm}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{LDA (модель с регуляризатором сглаживания)}
-Модели LDA соответствует EM"=алгоритм с регуляризатором сглаживания.
+Модели LDA соответствует EM"=алгоритм с регуляризатором сглаживания~\ref{eq:04}.
 Создать модель можно следующим образом:
 \begin{minted}{python}
     model = artm.ARTM( num_topics=param1,
                        num_document_passes=param3,
                        dictionary=bv.dictionary,
                        class_ids={'@default_class': 1.0} )
+    model.regularizers.add( artm.SmoothSparsePhiRegularizer( name='smooth',
+                                                             tau=tau ) )
 
-    model.scores.add(artm.PerplexityScore(name='perplexity', dictionary=bv.dictionary))
+    model.scores.add( artm.PerplexityScore( name='perplexity',
+                                            dictionary=bv.dictionary ) )
     model.scores.add(artm.SparsityPhiScore(name='sparsity_phi_score'))
     model.scores.add(artm.SparsityThetaScore(name='sparsity_theta_score'))
     model.scores.add(artm.TopTokensScore(name='top-tokens', num_tokens=10))
@@ -987,25 +1021,29 @@ pandas и numpy языка python.
 
 Для оценки качества модели выбраны такие же характеристки как и у модели PLSA.
 
-На место параметров модели (param1, param3) в функции создания и обучения,
+На место параметров модели (param1, param3, tau > 0) в функции создания и обучения,
 которую можно увидеть в приложениях, будут подставляться значения из некоторого
 набора, затем модель будет обучаться param2 раз. После обучения будет выведена
 соответствующая таблица с результатами по моделям.
 
 В результате получаем следующую таблицу:
 
+~\cite{all, videolec4, python-book, bigartm-book, bigartm}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Модель с регуляризатором разреживания}
 В данном случае модели соответствует EM"=алгоритм с регуляризатором
-разреживания. Создать модель можно следующим образом:
+разреживания~\ref{eq:05}. Создать модель можно следующим образом:
 \begin{minted}{python}
     model = artm.ARTM( num_topics=param1,
                        num_document_passes=param3,
                        dictionary=bv.dictionary,
                        class_ids={'@default_class': 1.0} )
+    model.regularizers.add( artm.SmoothSparsePhiRegularizer( name='smooth',
+                                                             tau=tau ) )
 
-    model.scores.add(artm.PerplexityScore(name='perplexity', dictionary=bv.dictionary))
+    model.scores.add( artm.PerplexityScore( name='perplexity',
+                                            dictionary=bv.dictionary ) )
     model.scores.add(artm.SparsityPhiScore(name='sparsity_phi_score'))
     model.scores.add(artm.SparsityThetaScore(name='sparsity_theta_score'))
     model.scores.add(artm.TopTokensScore(name='top-tokens', num_tokens=10))
@@ -1013,25 +1051,29 @@ pandas и numpy языка python.
 
 Характеристики для оценки качества используются всё теже.
 
-На место параметров модели (param1, param3) в функции создания и обучения,
+На место параметров модели (param1, param3, tau < 0) в функции создания и обучения,
 которую можно увидеть в приложениях, будут подставляться значения из некоторого
 набора, затем модель будет обучаться param2 раз. После обучения будет выведена
 соответствующая таблица с результатами по моделям.
 
 В результате получаем следующую таблицу:
 
+~\cite{all, videolec4, python-book, bigartm-book, bigartm}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Модель с регуляризатором декоррелирования}
 В данном случае модели соответствует EM"=алгоритм с регуляризатором
-декоррелирования. Создать модель можно следующим образом:
+декоррелирования~\ref{eq:06}. Создать модель можно следующим образом:
 \begin{minted}{python}
     model = artm.ARTM( num_topics=param1,
                        num_document_passes=param3,
                        dictionary=bv.dictionary,
                        class_ids={'@default_class': 1.0} )
+    model.regularizers.add( artm.DecorrelatorPhiRegularizer( name='decorrelator',
+                                                             tau=tau ) )
 
-    model.scores.add(artm.PerplexityScore(name='perplexity', dictionary=bv.dictionary))
+    model.scores.add( artm.PerplexityScore( name='perplexity',
+                                            dictionary=bv.dictionary ) )
     model.scores.add(artm.SparsityPhiScore(name='sparsity_phi_score'))
     model.scores.add(artm.SparsityThetaScore(name='sparsity_theta_score'))
     model.scores.add(artm.TopTokensScore(name='top-tokens', num_tokens=10))
@@ -1039,22 +1081,42 @@ pandas и numpy языка python.
 
 Характеристики для оценки качества используются всё теже.
 
-На место параметров модели (param1, param3) в функции создания и обучения,
+На место параметров модели (param1, param3, tau) в функции создания и обучения,
 которую можно увидеть в приложениях, будут подставляться значения из некоторого
 набора, затем модель будет обучаться param2 раз. После обучения будет выведена
 соответствующая таблица с результатами по моделям.
 
 В результате получаем следующую таблицу:
 
+~\cite{all, videolec4, python-book, bigartm-book, bigartm}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Выбор лучшей модели}
-В работе
+Выберем по одной модели из каждого класса, обладающей наибольшим значением
+перплексии в своём классе, и повторно обучим их.
 
+После этого посмотрим на топ слов для каждой из моделей и решим, темы какой
+из моделей лучше интерпретируются.
+
+Приведём списки слов для каждой из моделей:
+
+\textbf{PLSA}
+
+\textbf{LDA}
+
+\textbf{Модель с регуляризатором разреживания}
+
+\textbf{Модель с регуляризатором декоррелирования}
+
+~\cite{all, videolec4, python-book, bigartm-book, bigartm}
 % Раздел "Заключение"
 \conclusion
-В работе
-
+В данной работе были рассмотрены основные механизмы вероятностного
+тематического моделирования, включая EM"=алгоритм, методы регуляризации и
+аддитивная регуляризация тематических моделей. Также в процессе тематического
+моделирования новостей с сайта ВШЭ были закреплены практические навыки:
+предобработка данных с использованием библиотек pymorphy2 и nltk, а также
+создание тематических моделей с помощью библиотеки bigARTM.
 
 %Библиографический список, составленный вручную, без использования BibTeX
 %

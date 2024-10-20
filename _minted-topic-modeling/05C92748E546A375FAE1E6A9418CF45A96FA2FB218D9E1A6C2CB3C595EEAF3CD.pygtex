@@ -3,7 +3,8 @@
     \PYG{c+c1}{\PYGZsh{} перебираем символы некоторого слова}
     \PYG{k}{for} \PYG{n}{symbol} \PYG{o+ow}{in} \PYG{n}{word}\PYG{p}{:}
         \PYG{c+c1}{\PYGZsh{} если символ принадлежит русскому или английскому алфавитам}
-        \PYG{k}{if} \PYG{p}{(}\PYG{n}{symbol} \PYG{o}{\PYGZgt{}=} \PYG{l+s+s1}{\PYGZsq{}a\PYGZsq{}} \PYG{o+ow}{and} \PYG{n}{symbol} \PYG{o}{\PYGZlt{}=} \PYG{l+s+s1}{\PYGZsq{}z\PYGZsq{}} \PYG{o+ow}{or} \PYG{n}{symbol} \PYG{o}{\PYGZgt{}=} \PYG{l+s+s1}{\PYGZsq{}а\PYGZsq{}} \PYG{o+ow}{and} \PYG{n}{symbol} \PYG{o}{\PYGZlt{}=} \PYG{l+s+s1}{\PYGZsq{}я\PYGZsq{}}\PYG{p}{):}
+        \PYG{k}{if} \PYG{p}{(} \PYG{n}{symbol} \PYG{o}{\PYGZgt{}=} \PYG{l+s+s1}{\PYGZsq{}a\PYGZsq{}} \PYG{o+ow}{and} \PYG{n}{symbol} \PYG{o}{\PYGZlt{}=} \PYG{l+s+s1}{\PYGZsq{}z\PYGZsq{}}
+             \PYG{o+ow}{or} \PYG{n}{symbol} \PYG{o}{\PYGZgt{}=} \PYG{l+s+s1}{\PYGZsq{}а\PYGZsq{}} \PYG{o+ow}{and} \PYG{n}{symbol} \PYG{o}{\PYGZlt{}=} \PYG{l+s+s1}{\PYGZsq{}я\PYGZsq{}} \PYG{p}{):}
             \PYG{c+c1}{\PYGZsh{} добавляем символ в новое слово}
             \PYG{n}{new\PYGZus{}word} \PYG{o}{+=} \PYG{n}{symbol}
 \end{Verbatim}

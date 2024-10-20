@@ -1,0 +1,121 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{import} \PYG{n+nn}{pandas} \PYG{k}{as} \PYG{n+nn}{pd}
+\PYG{k+kn}{import} \PYG{n+nn}{re}
+
+\PYG{err}{!}\PYG{n}{pip} \PYG{n}{install} \PYG{n}{nltk}
+\PYG{k+kn}{import} \PYG{n+nn}{nltk}
+\PYG{n}{nltk}\PYG{o}{.}\PYG{n}{download}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}stopwords\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{nltk}\PYG{o}{.}\PYG{n}{download}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}punkt\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{nltk}\PYG{o}{.}\PYG{n}{download}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}punkt\PYGZus{}tab\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{nltk}\PYG{o}{.}\PYG{n}{download}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}wordnet\PYGZsq{}}\PYG{p}{)}
+\PYG{k+kn}{from} \PYG{n+nn}{nltk.corpus} \PYG{k+kn}{import} \PYG{n}{stopwords}
+\PYG{k+kn}{from} \PYG{n+nn}{nltk.stem} \PYG{k+kn}{import} \PYG{n}{WordNetLemmatizer}
+
+\PYG{err}{!}\PYG{n}{pip} \PYG{n}{install} \PYG{n}{pymorphy2}
+\PYG{k+kn}{import} \PYG{n+nn}{pymorphy2}
+
+\PYG{c+c1}{\PYGZsh{} Загрузка данных и отсечение последней строки с несущественными столбцами (link, data, tags)}
+\PYG{n}{news} \PYG{o}{=} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{read\PYGZus{}excel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}news.xlsx\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{news} \PYG{o}{=} \PYG{n}{news}\PYG{p}{[:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]}
+\PYG{n}{news} \PYG{o}{=} \PYG{n}{news}\PYG{p}{[[}\PYG{l+s+s1}{\PYGZsq{}title\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}content\PYGZsq{}}\PYG{p}{]]}
+
+\PYG{c+c1}{\PYGZsh{} Функция для разбиения ячеек на слова}
+\PYG{k}{def} \PYG{n+nf}{tokenize}\PYG{p}{(}\PYG{n}{cell}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{str}\PYG{p}{]:}
+    \PYG{n}{words} \PYG{o}{=} \PYG{p}{[]}
+
+    \PYG{n}{sentences} \PYG{o}{=} \PYG{n}{nltk}\PYG{o}{.}\PYG{n}{sent\PYGZus{}tokenize}\PYG{p}{(}\PYG{n}{cell}\PYG{p}{)}
+    \PYG{k}{for} \PYG{n}{sentence} \PYG{o+ow}{in} \PYG{n}{sentences}\PYG{p}{:}
+        \PYG{n}{words} \PYG{o}{+=} \PYG{n}{nltk}\PYG{o}{.}\PYG{n}{word\PYGZus{}tokenize}\PYG{p}{(}\PYG{n}{sentence}\PYG{p}{)}
+
+    \PYG{k}{return} \PYG{n}{words}
+
+\PYG{c+c1}{\PYGZsh{} Функция для перевода слов в нижний регистр}
+\PYG{k}{def} \PYG{n+nf}{convert\PYGZus{}to\PYGZus{}lowercase}\PYG{p}{(}\PYG{n}{words}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{str}\PYG{p}{])} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{str}\PYG{p}{]:}
+    \PYG{n}{new\PYGZus{}words} \PYG{o}{=} \PYG{p}{[]}
+
+    \PYG{k}{for} \PYG{n}{word} \PYG{o+ow}{in} \PYG{n}{words}\PYG{p}{:}
+        \PYG{n}{new\PYGZus{}words}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{word}\PYG{o}{.}\PYG{n}{lower}\PYG{p}{())}
+
+    \PYG{k}{return} \PYG{n}{new\PYGZus{}words}
+
+\PYG{c+c1}{\PYGZsh{} Функция для удаления символов, отличающихся от символов русского и английского алфавитов}
+\PYG{k}{def} \PYG{n+nf}{del\PYGZus{}non\PYGZus{}alphs}\PYG{p}{(}\PYG{n}{words}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{str}\PYG{p}{])} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{str}\PYG{p}{]:}
+    \PYG{n}{new\PYGZus{}words} \PYG{o}{=} \PYG{p}{[]}
+
+    \PYG{k}{for} \PYG{n}{word} \PYG{o+ow}{in} \PYG{n}{words}\PYG{p}{:}
+        \PYG{n}{new\PYGZus{}word} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}\PYGZsq{}}
+
+        \PYG{k}{for} \PYG{n}{symbol} \PYG{o+ow}{in} \PYG{n}{word}\PYG{p}{:}
+            \PYG{k}{if} \PYG{p}{(}\PYG{n}{symbol} \PYG{o}{\PYGZgt{}=} \PYG{l+s+s1}{\PYGZsq{}a\PYGZsq{}} \PYG{o+ow}{and} \PYG{n}{symbol} \PYG{o}{\PYGZlt{}=} \PYG{l+s+s1}{\PYGZsq{}z\PYGZsq{}} \PYG{o+ow}{or} \PYG{n}{symbol} \PYG{o}{\PYGZgt{}=} \PYG{l+s+s1}{\PYGZsq{}а\PYGZsq{}} \PYG{o+ow}{and} \PYG{n}{symbol} \PYG{o}{\PYGZlt{}=} \PYG{l+s+s1}{\PYGZsq{}я\PYGZsq{}}\PYG{p}{):}
+                \PYG{n}{new\PYGZus{}word} \PYG{o}{+=} \PYG{n}{symbol}
+
+        \PYG{k}{if} \PYG{p}{(}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{new\PYGZus{}word}\PYG{p}{)} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{0}\PYG{p}{):}
+            \PYG{n}{new\PYGZus{}words}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{new\PYGZus{}word}\PYG{p}{)}
+
+    \PYG{k}{return} \PYG{n}{new\PYGZus{}words}
+
+\PYG{c+c1}{\PYGZsh{} Функция для удаления стоп слов}
+\PYG{k}{def} \PYG{n+nf}{del\PYGZus{}stop\PYGZus{}words}\PYG{p}{(}\PYG{n}{words}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{str}\PYG{p}{])} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{str}\PYG{p}{]:}
+    \PYG{n}{new\PYGZus{}words} \PYG{o}{=} \PYG{p}{[]}
+
+    \PYG{k}{for} \PYG{n}{word} \PYG{o+ow}{in} \PYG{n}{words}\PYG{p}{:}
+        \PYG{k}{if} \PYG{n}{re}\PYG{o}{.}\PYG{n}{match}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}[а\PYGZhy{}я]\PYGZsq{}}\PYG{p}{,} \PYG{n}{word}\PYG{p}{):}
+            \PYG{k}{if} \PYG{n}{word} \PYG{o+ow}{not} \PYG{o+ow}{in} \PYG{p}{(}\PYG{n}{stopwords}\PYG{o}{.}\PYG{n}{words}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}russian\PYGZsq{}}\PYG{p}{)} \PYG{o}{+} \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}вшэ\PYGZsq{}} \PYG{o}{+} \PYG{l+s+s1}{\PYGZsq{}ниу\PYGZsq{}}\PYG{p}{]):}
+                \PYG{n}{new\PYGZus{}words}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{word}\PYG{p}{)}
+        \PYG{k}{elif} \PYG{n}{re}\PYG{o}{.}\PYG{n}{match}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}[a\PYGZhy{}z]\PYGZsq{}}\PYG{p}{,} \PYG{n}{word}\PYG{p}{):}
+            \PYG{k}{if} \PYG{n}{word} \PYG{o+ow}{not} \PYG{o+ow}{in} \PYG{n}{stopwords}\PYG{o}{.}\PYG{n}{words}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}english\PYGZsq{}}\PYG{p}{):}
+                \PYG{n}{new\PYGZus{}words}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{word}\PYG{p}{)}
+
+    \PYG{k}{return} \PYG{n}{new\PYGZus{}words}
+
+\PYG{c+c1}{\PYGZsh{} Функция лемматизации}
+\PYG{k}{def} \PYG{n+nf}{lemm\PYGZus{}words}\PYG{p}{(}\PYG{n}{words}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{str}\PYG{p}{])} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{str}\PYG{p}{]:}
+    \PYG{n}{lemm\PYGZus{}nltk} \PYG{o}{=} \PYG{n}{WordNetLemmatizer}\PYG{p}{()}
+    \PYG{n}{lemm\PYGZus{}pymorphy2} \PYG{o}{=} \PYG{n}{pymorphy2}\PYG{o}{.}\PYG{n}{MorphAnalyzer}\PYG{p}{()}
+
+    \PYG{n}{new\PYGZus{}words} \PYG{o}{=} \PYG{p}{[]}
+
+    \PYG{k}{for} \PYG{n}{word} \PYG{o+ow}{in} \PYG{n}{words}\PYG{p}{:}
+        \PYG{k}{if} \PYG{n}{re}\PYG{o}{.}\PYG{n}{match}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}[а\PYGZhy{}я]\PYGZsq{}}\PYG{p}{,} \PYG{n}{word}\PYG{p}{):}
+            \PYG{n}{new\PYGZus{}words}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{lemm\PYGZus{}pymorphy2}\PYG{o}{.}\PYG{n}{parse}\PYG{p}{(}\PYG{n}{word}\PYG{p}{)[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{normal\PYGZus{}form}\PYG{p}{)}
+        \PYG{k}{elif} \PYG{n}{re}\PYG{o}{.}\PYG{n}{match}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}[a\PYGZhy{}z]\PYGZsq{}}\PYG{p}{,} \PYG{n}{word}\PYG{p}{):}
+            \PYG{n}{new\PYGZus{}words}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{lemm\PYGZus{}nltk}\PYG{o}{.}\PYG{n}{lemmatize}\PYG{p}{(}\PYG{n}{word}\PYG{p}{))}
+
+    \PYG{k}{return} \PYG{n}{new\PYGZus{}words}
+
+\PYG{c+c1}{\PYGZsh{} Функция для конвертации массива строк в предложение}
+\PYG{k}{def} \PYG{n+nf}{convert\PYGZus{}words\PYGZus{}to\PYGZus{}cell}\PYG{p}{(}\PYG{n}{words}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{str}\PYG{p}{])} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{str}\PYG{p}{:}
+    \PYG{n}{cell} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{} \PYGZsq{}}\PYG{o}{.}\PYG{n}{join}\PYG{p}{(}\PYG{n}{words}\PYG{p}{)}
+
+    \PYG{k}{return} \PYG{n}{cell}
+
+\PYG{c+c1}{\PYGZsh{} Функция для применения остальных функция предобработки}
+\PYG{k}{def} \PYG{n+nf}{colaider}\PYG{p}{(}\PYG{n}{data}\PYG{p}{:} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{k+kc}{None}\PYG{p}{:}
+    \PYG{k}{for} \PYG{n}{column} \PYG{o+ow}{in} \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}title\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}content\PYGZsq{}}\PYG{p}{]:}
+        \PYG{k}{for} \PYG{n}{cell} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{data}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]):}
+            \PYG{n}{temp} \PYG{o}{=} \PYG{n}{data}\PYG{p}{[}\PYG{n}{column}\PYG{p}{]}\PYG{o}{.}\PYG{n}{loc}\PYG{p}{[}\PYG{n}{cell}\PYG{p}{]}
+
+            \PYG{n}{words} \PYG{o}{=} \PYG{n}{tokenize}\PYG{p}{(}\PYG{n}{temp}\PYG{p}{)}
+            \PYG{n}{words} \PYG{o}{=} \PYG{n}{convert\PYGZus{}to\PYGZus{}lowercase}\PYG{p}{(}\PYG{n}{words}\PYG{p}{)}
+            \PYG{n}{words} \PYG{o}{=} \PYG{n}{del\PYGZus{}non\PYGZus{}alphs}\PYG{p}{(}\PYG{n}{words}\PYG{p}{)}
+            \PYG{n}{words} \PYG{o}{=} \PYG{n}{del\PYGZus{}stop\PYGZus{}words}\PYG{p}{(}\PYG{n}{words}\PYG{p}{)}
+            \PYG{n}{words} \PYG{o}{=} \PYG{n}{lemm\PYGZus{}words}\PYG{p}{(}\PYG{n}{words}\PYG{p}{)}
+            \PYG{n}{temp} \PYG{o}{=} \PYG{n}{convert\PYGZus{}words\PYGZus{}to\PYGZus{}cell}\PYG{p}{(}\PYG{n}{words}\PYG{p}{)}
+
+            \PYG{n}{data}\PYG{o}{.}\PYG{n}{loc}\PYG{p}{[}\PYG{n}{cell}\PYG{p}{,} \PYG{n}{column}\PYG{p}{]} \PYG{o}{=} \PYG{n}{temp}
+
+\PYG{c+c1}{\PYGZsh{} Выполнение предобработки}
+\PYG{n}{colaider}\PYG{p}{(}\PYG{n}{news}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} Функция для удаления пустых строк массива}
+\PYG{k}{def} \PYG{n+nf}{del\PYGZus{}void\PYGZus{}string}\PYG{p}{(}\PYG{n}{data}\PYG{p}{:} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{k+kc}{None}\PYG{p}{:}
+    \PYG{k}{for} \PYG{n}{string} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{data}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]):}
+        \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{data}\PYG{o}{.}\PYG{n}{loc}\PYG{p}{[}\PYG{n}{string}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}title\PYGZsq{}}\PYG{p}{])} \PYG{o}{==} \PYG{l+m+mi}{0} \PYG{o+ow}{and} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{data}\PYG{o}{.}\PYG{n}{loc}\PYG{p}{[}\PYG{n}{string}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}content\PYGZsq{}}\PYG{p}{])} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{:}
+            \PYG{n}{data} \PYG{o}{=} \PYG{n}{data}\PYG{o}{.}\PYG{n}{drop}\PYG{p}{(}\PYG{n}{string}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} Удаление пустых строк}
+\PYG{n}{del\PYGZus{}void\PYGZus{}string}\PYG{p}{(}\PYG{n}{news}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} Сохраняем результаты}
+\PYG{n}{news}\PYG{o}{.}\PYG{n}{to\PYGZus{}excel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}prepeared\PYGZus{}news.xlsx\PYGZsq{}}\PYG{p}{)}
+\end{Verbatim}

@@ -1,0 +1,129 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{err}{!}\PYG{n}{pip} \PYG{n}{install} \PYG{n}{bigartm10}
+\PYG{k+kn}{import} \PYG{n+nn}{artm}
+\PYG{k+kn}{from} \PYG{n+nn}{nltk} \PYG{k+kn}{import} \PYG{n}{ngrams}
+
+\PYG{n}{news} \PYG{o}{=} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{read\PYGZus{}excel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}prepeared\PYGZus{}news.xlsx\PYGZsq{}}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} Датасет с результатами моделирования}
+\PYG{n}{columns} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}model\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}num\PYGZus{}topics\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}num\PYGZus{}collection\PYGZus{}passes\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}num\PYGZus{}doc\PYGZus{}passes\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}n\PYGZhy{}grams\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}perplexity\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}phi\PYGZus{}sparsity\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}theta\PYGZus{}sparsity\PYGZsq{}}\PYG{p}{]}
+\PYG{n}{results} \PYG{o}{=} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{(}\PYG{n}{columns}\PYG{o}{=}\PYG{n}{columns}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} Функция для вычисления частоты слов}
+\PYG{k}{def} \PYG{n+nf}{calc\PYGZus{}words\PYGZus{}frequency}\PYG{p}{(}\PYG{n}{data}\PYG{p}{:} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{dict}\PYG{p}{:}
+  \PYG{n}{words\PYGZus{}frequency} \PYG{o}{=} \PYG{n+nb}{dict}\PYG{p}{()}
+
+  \PYG{k}{for} \PYG{n}{string} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{data}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]):}
+    \PYG{n}{words} \PYG{o}{=} \PYG{n}{data}\PYG{o}{.}\PYG{n}{iloc}\PYG{p}{[}\PYG{n}{string}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}title\PYGZsq{}}\PYG{p}{]}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{} \PYGZsq{}}\PYG{p}{)} \PYG{o}{+} \PYG{n}{data}\PYG{o}{.}\PYG{n}{iloc}\PYG{p}{[}\PYG{n}{string}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}content\PYGZsq{}}\PYG{p}{]}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{} \PYGZsq{}}\PYG{p}{)}
+
+    \PYG{k}{for} \PYG{n}{word} \PYG{o+ow}{in} \PYG{n}{words}\PYG{p}{:}
+      \PYG{k}{if} \PYG{n}{word} \PYG{o+ow}{in} \PYG{n}{words\PYGZus{}frequency}\PYG{o}{.}\PYG{n}{keys}\PYG{p}{:}
+        \PYG{n}{words\PYGZus{}frequency}\PYG{p}{[}\PYG{n}{word}\PYG{p}{]} \PYG{o}{+=} \PYG{l+m+mi}{1}
+      \PYG{k}{else}\PYG{p}{:}
+        \PYG{n}{words\PYGZus{}frequency}\PYG{p}{[}\PYG{n}{word}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mi}{1}
+
+  \PYG{k}{return} \PYG{n}{words\PYGZus{}frequency}
+
+\PYG{c+c1}{\PYGZsh{} Функция создания vowpal\PYGZus{}wabbit файла (каждая новость \PYGZhy{} отдельный документ)}
+\PYG{k}{def} \PYG{n+nf}{make\PYGZus{}vowpal\PYGZus{}wabbit}\PYG{p}{(}\PYG{n}{data}\PYG{p}{:} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{,} \PYG{n}{path}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{,} \PYG{n}{words\PYGZus{}frequency}\PYG{p}{:} \PYG{n+nb}{dict}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{k+kc}{None}\PYG{p}{:}
+    \PYG{n}{f} \PYG{o}{=} \PYG{n+nb}{open}\PYG{p}{(}\PYG{n}{path}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}w\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{k}{for} \PYG{n}{string} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{data}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]):}
+      \PYG{n}{words} \PYG{o}{=} \PYG{n}{data}\PYG{o}{.}\PYG{n}{iloc}\PYG{p}{[}\PYG{n}{string}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}title\PYGZsq{}}\PYG{p}{]}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{} \PYGZsq{}}\PYG{p}{)} \PYG{o}{+} \PYG{n}{data}\PYG{o}{.}\PYG{n}{iloc}\PYG{p}{[}\PYG{n}{string}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}content\PYGZsq{}}\PYG{p}{]}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{} \PYGZsq{}}\PYG{p}{)}
+
+      \PYG{n}{string\PYGZus{}} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}\PYGZsq{}}
+      \PYG{k}{for} \PYG{n}{word} \PYG{o+ow}{in} \PYG{n}{words}\PYG{p}{:}
+        \PYG{k}{if} \PYG{n}{words\PYGZus{}frequency}\PYG{p}{[}\PYG{n}{word}\PYG{p}{]} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{4}\PYG{p}{:}
+          \PYG{n}{string\PYGZus{}} \PYG{o}{+=} \PYG{n}{word} \PYG{o}{+} \PYG{l+s+s1}{\PYGZsq{} \PYGZsq{}}
+      \PYG{n}{string\PYGZus{}} \PYG{o}{=} \PYG{n}{string\PYGZus{}}\PYG{p}{[:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]}
+
+      \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{string\PYGZus{}}\PYG{p}{)} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{4}\PYG{p}{:}
+        \PYG{n}{f}\PYG{o}{.}\PYG{n}{write}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}doc\PYGZus{}}\PYG{l+s+si}{\PYGZob{}0\PYGZcb{}}\PYG{l+s+s1}{ \PYGZsq{}}\PYG{o}{.}\PYG{n}{format}\PYG{p}{(}\PYG{n}{string}\PYG{p}{)} \PYG{o}{+} \PYG{n}{string\PYGZus{}} \PYG{o}{+} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{n}{f}\PYG{o}{.}\PYG{n}{close}\PYG{p}{()}
+
+\PYG{c+c1}{\PYGZsh{} Функция создания vowpal\PYGZus{}wabbit файла с биграммами (каждая новость \PYGZhy{} отдельный документ)}
+\PYG{k}{def} \PYG{n+nf}{make\PYGZus{}vowpal\PYGZus{}wabbit\PYGZus{}bigramm}\PYG{p}{(}\PYG{n}{data}\PYG{p}{:} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{,} \PYG{n}{path}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{k+kc}{None}\PYG{p}{:}
+    \PYG{n}{f} \PYG{o}{=} \PYG{n+nb}{open}\PYG{p}{(}\PYG{n}{path}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}w\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{k}{for} \PYG{n}{string} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{data}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]):}
+      \PYG{n}{words} \PYG{o}{=} \PYG{n}{data}\PYG{o}{.}\PYG{n}{iloc}\PYG{p}{[}\PYG{n}{string}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}title\PYGZsq{}}\PYG{p}{]}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{} \PYGZsq{}}\PYG{p}{)} \PYG{o}{+} \PYG{n}{data}\PYG{o}{.}\PYG{n}{iloc}\PYG{p}{[}\PYG{n}{string}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}content\PYGZsq{}}\PYG{p}{]}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{} \PYGZsq{}}\PYG{p}{)}
+
+      \PYG{n}{for\PYGZus{}paste} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}\PYGZsq{}}
+      \PYG{k}{for} \PYG{n}{word} \PYG{o+ow}{in} \PYG{n}{words}\PYG{p}{:}
+        \PYG{k}{if} \PYG{n}{words\PYGZus{}frequency}\PYG{p}{[}\PYG{n}{word}\PYG{p}{]} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{4}\PYG{p}{:}
+          \PYG{n}{for\PYGZus{}paste} \PYG{o}{+=} \PYG{n}{word} \PYG{o}{+} \PYG{l+s+s1}{\PYGZsq{} \PYGZsq{}}
+      \PYG{n}{for\PYGZus{}paste} \PYG{o}{=} \PYG{n}{for\PYGZus{}paste}\PYG{p}{[:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]}
+
+      \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{for\PYGZus{}paste}\PYG{p}{)} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{0}\PYG{p}{:}
+        \PYG{n}{f}\PYG{o}{.}\PYG{n}{write}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}doc\PYGZus{}}\PYG{l+s+si}{\PYGZob{}0\PYGZcb{}}\PYG{l+s+s1}{ \PYGZsq{}}\PYG{o}{.}\PYG{n}{format}\PYG{p}{(}\PYG{n}{string}\PYG{p}{)} \PYG{o}{+} \PYG{l+s+s1}{\PYGZsq{} \PYGZsq{}}\PYG{o}{.}\PYG{n}{join}\PYG{p}{([}\PYG{l+s+s1}{\PYGZsq{}\PYGZus{}\PYGZsq{}}\PYG{o}{.}\PYG{n}{join}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)} \PYG{k}{for} \PYG{n}{x} \PYG{o+ow}{in} \PYG{n+nb}{list}\PYG{p}{(}\PYG{n}{ngrams}\PYG{p}{(}\PYG{n}{for\PYGZus{}paste}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{} \PYGZsq{}}\PYG{p}{),} \PYG{l+m+mi}{2}\PYG{p}{))])} \PYG{o}{+} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{n}{f}\PYG{o}{.}\PYG{n}{close}\PYG{p}{()}
+
+\PYG{c+c1}{\PYGZsh{} Функция создания vowpal\PYGZus{}wabbit файла с триграммами (каждая новость \PYGZhy{} отдельный документ)}
+\PYG{k}{def} \PYG{n+nf}{make\PYGZus{}vowpal\PYGZus{}wabbit\PYGZus{}trigramm}\PYG{p}{(}\PYG{n}{data}\PYG{p}{:} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{,} \PYG{n}{path}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{k+kc}{None}\PYG{p}{:}
+    \PYG{n}{f} \PYG{o}{=} \PYG{n+nb}{open}\PYG{p}{(}\PYG{n}{path}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}w\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{k}{for} \PYG{n}{string} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{data}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]):}
+      \PYG{n}{words} \PYG{o}{=} \PYG{n}{data}\PYG{o}{.}\PYG{n}{iloc}\PYG{p}{[}\PYG{n}{string}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}title\PYGZsq{}}\PYG{p}{]}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{} \PYGZsq{}}\PYG{p}{)} \PYG{o}{+} \PYG{n}{data}\PYG{o}{.}\PYG{n}{iloc}\PYG{p}{[}\PYG{n}{string}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}content\PYGZsq{}}\PYG{p}{]}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{} \PYGZsq{}}\PYG{p}{)}
+
+      \PYG{n}{for\PYGZus{}paste} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}\PYGZsq{}}
+      \PYG{k}{for} \PYG{n}{word} \PYG{o+ow}{in} \PYG{n}{words}\PYG{p}{:}
+        \PYG{k}{if} \PYG{n}{words\PYGZus{}frequency}\PYG{p}{[}\PYG{n}{word}\PYG{p}{]} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{4}\PYG{p}{:}
+          \PYG{n}{for\PYGZus{}paste} \PYG{o}{+=} \PYG{n}{word} \PYG{o}{+} \PYG{l+s+s1}{\PYGZsq{} \PYGZsq{}}
+      \PYG{n}{for\PYGZus{}paste} \PYG{o}{=} \PYG{n}{for\PYGZus{}paste}\PYG{p}{[:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]}
+
+      \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{for\PYGZus{}paste}\PYG{p}{)} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{0}\PYG{p}{:}
+        \PYG{n}{f}\PYG{o}{.}\PYG{n}{write}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}doc\PYGZus{}}\PYG{l+s+si}{\PYGZob{}0\PYGZcb{}}\PYG{l+s+s1}{ \PYGZsq{}}\PYG{o}{.}\PYG{n}{format}\PYG{p}{(}\PYG{n}{string}\PYG{p}{)} \PYG{o}{+} \PYG{l+s+s1}{\PYGZsq{} \PYGZsq{}}\PYG{o}{.}\PYG{n}{join}\PYG{p}{([}\PYG{l+s+s1}{\PYGZsq{}\PYGZus{}\PYGZsq{}}\PYG{o}{.}\PYG{n}{join}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)} \PYG{k}{for} \PYG{n}{x} \PYG{o+ow}{in} \PYG{n+nb}{list}\PYG{p}{(}\PYG{n}{ngrams}\PYG{p}{(}\PYG{n}{for\PYGZus{}paste}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{} \PYGZsq{}}\PYG{p}{),} \PYG{l+m+mi}{3}\PYG{p}{))])} \PYG{o}{+} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{n}{f}\PYG{o}{.}\PYG{n}{close}\PYG{p}{()}
+
+\PYG{c+c1}{\PYGZsh{} Создание vowpal\PYGZus{}wabbit файлов}
+\PYG{n}{make\PYGZus{}vowpal\PYGZus{}wabbit}\PYG{p}{(}\PYG{n}{news}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}./vw.txt\PYGZsq{}}\PYG{p}{,} \PYG{n}{calc\PYGZus{}words\PYGZus{}frequency}\PYG{p}{(}\PYG{n}{pd}\PYG{o}{.}\PYG{n}{read\PYGZus{}excel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}prepeared\PYGZus{}news.xlsx\PYGZsq{}}\PYG{p}{)))}
+\PYG{n}{make\PYGZus{}vowpal\PYGZus{}wabbit\PYGZus{}bigramm}\PYG{p}{(}\PYG{n}{news}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}./vw2.txt\PYGZsq{}}\PYG{p}{,} \PYG{n}{calc\PYGZus{}words\PYGZus{}frequency}\PYG{p}{(}\PYG{n}{pd}\PYG{o}{.}\PYG{n}{read\PYGZus{}excel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}prepeared\PYGZus{}news.xlsx\PYGZsq{}}\PYG{p}{)))}
+\PYG{n}{make\PYGZus{}vowpal\PYGZus{}wabbit\PYGZus{}trigramm}\PYG{p}{(}\PYG{n}{news}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}./vw3.txt\PYGZsq{}}\PYG{p}{,} \PYG{n}{calc\PYGZus{}words\PYGZus{}frequency}\PYG{p}{(}\PYG{n}{pd}\PYG{o}{.}\PYG{n}{read\PYGZus{}excel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}prepeared\PYGZus{}news.xlsx\PYGZsq{}}\PYG{p}{)))}
+
+\PYG{c+c1}{\PYGZsh{} Создание батчей}
+\PYG{n}{bv} \PYG{o}{=} \PYG{n}{artm}\PYG{o}{.}\PYG{n}{BatchVectorizer}\PYG{p}{(}\PYG{n}{data\PYGZus{}path}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}vw.txt\PYGZsq{}}\PYG{p}{,} \PYG{n}{data\PYGZus{}format}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}vowpal\PYGZus{}wabbit\PYGZsq{}}\PYG{p}{,} \PYG{n}{batch\PYGZus{}size}\PYG{o}{=}\PYG{l+m+mi}{3000}\PYG{p}{,} \PYG{n}{target\PYGZus{}folder}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}SPARSE\PYGZus{}batches\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{bv2} \PYG{o}{=} \PYG{n}{artm}\PYG{o}{.}\PYG{n}{BatchVectorizer}\PYG{p}{(}\PYG{n}{data\PYGZus{}path}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}vw2.txt\PYGZsq{}}\PYG{p}{,} \PYG{n}{data\PYGZus{}format}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}vowpal\PYGZus{}wabbit\PYGZsq{}}\PYG{p}{,} \PYG{n}{batch\PYGZus{}size}\PYG{o}{=}\PYG{l+m+mi}{3000}\PYG{p}{,} \PYG{n}{target\PYGZus{}folder}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}SPARSE\PYGZus{}batches2\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{bv3} \PYG{o}{=} \PYG{n}{artm}\PYG{o}{.}\PYG{n}{BatchVectorizer}\PYG{p}{(}\PYG{n}{data\PYGZus{}path}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}vw3.txt\PYGZsq{}}\PYG{p}{,} \PYG{n}{data\PYGZus{}format}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}vowpal\PYGZus{}wabbit\PYGZsq{}}\PYG{p}{,} \PYG{n}{batch\PYGZus{}size}\PYG{o}{=}\PYG{l+m+mi}{3000}\PYG{p}{,} \PYG{n}{target\PYGZus{}folder}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}SPARSE\PYGZus{}batches3\PYGZsq{}}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} Функция создания и обучения модели}
+\PYG{k}{def} \PYG{n+nf}{make\PYGZus{}and\PYGZus{}train\PYGZus{}SPARSE}\PYG{p}{(}\PYG{n}{num\PYGZus{}topics}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{int}\PYG{p}{],} \PYG{n}{num\PYGZus{}collection\PYGZus{}passes}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{int}\PYG{p}{],} \PYG{n}{num\PYGZus{}doc\PYGZus{}passes}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{int}\PYG{p}{],} \PYG{n}{tau}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{int}\PYG{p}{]):}
+  \PYG{k}{for} \PYG{n}{param1} \PYG{o+ow}{in} \PYG{n}{num\PYGZus{}topics}\PYG{p}{:}
+    \PYG{k}{for} \PYG{n}{param2} \PYG{o+ow}{in} \PYG{n}{num\PYGZus{}collection\PYGZus{}passes}\PYG{p}{:}
+      \PYG{k}{for} \PYG{n}{param3} \PYG{o+ow}{in} \PYG{n}{num\PYGZus{}doc\PYGZus{}passes}\PYG{p}{:}
+        \PYG{k}{for} \PYG{n}{param4} \PYG{o+ow}{in} \PYG{n}{tau}\PYG{p}{:}
+          \PYG{k}{for} \PYG{n}{param5} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{o}{+}\PYG{l+m+mi}{1}\PYG{p}{):}
+            \PYG{k}{global} \PYG{n}{model}
+            \PYG{k}{if} \PYG{n}{param5} \PYG{o}{==} \PYG{l+m+mi}{1}\PYG{p}{:}
+              \PYG{n}{model} \PYG{o}{=} \PYG{n}{artm}\PYG{o}{.}\PYG{n}{ARTM}\PYG{p}{(}\PYG{n}{num\PYGZus{}topics}\PYG{o}{=}\PYG{n}{param1}\PYG{p}{,} \PYG{n}{num\PYGZus{}document\PYGZus{}passes}\PYG{o}{=}\PYG{n}{param3}\PYG{p}{,} \PYG{n}{dictionary}\PYG{o}{=}\PYG{n}{bv}\PYG{o}{.}\PYG{n}{dictionary}\PYG{p}{,} \PYG{n}{class\PYGZus{}ids}\PYG{o}{=}\PYG{p}{\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}@default\PYGZus{}class\PYGZsq{}}\PYG{p}{:} \PYG{l+m+mf}{1.0}\PYG{p}{\PYGZcb{})}
+            \PYG{k}{elif} \PYG{n}{param5} \PYG{o}{==} \PYG{l+m+mi}{2}\PYG{p}{:}
+              \PYG{n}{model} \PYG{o}{=} \PYG{n}{artm}\PYG{o}{.}\PYG{n}{ARTM}\PYG{p}{(}\PYG{n}{num\PYGZus{}topics}\PYG{o}{=}\PYG{n}{param1}\PYG{p}{,} \PYG{n}{num\PYGZus{}document\PYGZus{}passes}\PYG{o}{=}\PYG{n}{param3}\PYG{p}{,} \PYG{n}{dictionary}\PYG{o}{=}\PYG{n}{bv2}\PYG{o}{.}\PYG{n}{dictionary}\PYG{p}{,} \PYG{n}{class\PYGZus{}ids}\PYG{o}{=}\PYG{p}{\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}@default\PYGZus{}class\PYGZsq{}}\PYG{p}{:} \PYG{l+m+mf}{1.0}\PYG{p}{\PYGZcb{})}
+            \PYG{k}{else}\PYG{p}{:}
+              \PYG{n}{model} \PYG{o}{=} \PYG{n}{artm}\PYG{o}{.}\PYG{n}{ARTM}\PYG{p}{(}\PYG{n}{num\PYGZus{}topics}\PYG{o}{=}\PYG{n}{param1}\PYG{p}{,} \PYG{n}{num\PYGZus{}document\PYGZus{}passes}\PYG{o}{=}\PYG{n}{param3}\PYG{p}{,} \PYG{n}{dictionary}\PYG{o}{=}\PYG{n}{bv3}\PYG{o}{.}\PYG{n}{dictionary}\PYG{p}{,} \PYG{n}{class\PYGZus{}ids}\PYG{o}{=}\PYG{p}{\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}@default\PYGZus{}class\PYGZsq{}}\PYG{p}{:} \PYG{l+m+mf}{1.0}\PYG{p}{\PYGZcb{})}
+
+            \PYG{n}{model}\PYG{o}{.}\PYG{n}{regularizers}\PYG{o}{.}\PYG{n}{add}\PYG{p}{(}\PYG{n}{artm}\PYG{o}{.}\PYG{n}{SmoothSparsePhiRegularizer}\PYG{p}{(}\PYG{n}{name}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}phi\PYGZhy{}sparse\PYGZsq{}}\PYG{p}{,}\PYG{n}{tau}\PYG{o}{=}\PYG{n}{param4}\PYG{p}{))}
+            \PYG{n}{model}\PYG{o}{.}\PYG{n}{regularizers}\PYG{o}{.}\PYG{n}{add}\PYG{p}{(}\PYG{n}{artm}\PYG{o}{.}\PYG{n}{SmoothSparseThetaRegularizer}\PYG{p}{(}\PYG{n}{name}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}theta\PYGZhy{}sparse\PYGZsq{}}\PYG{p}{,}\PYG{n}{tau}\PYG{o}{=}\PYG{n}{param4}\PYG{p}{))}
+
+            \PYG{n}{model}\PYG{o}{.}\PYG{n}{scores}\PYG{o}{.}\PYG{n}{add}\PYG{p}{(}\PYG{n}{artm}\PYG{o}{.}\PYG{n}{PerplexityScore}\PYG{p}{(}\PYG{n}{name}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}perplexity\PYGZsq{}}\PYG{p}{,} \PYG{n}{dictionary}\PYG{o}{=}\PYG{n}{bv}\PYG{o}{.}\PYG{n}{dictionary}\PYG{p}{))}
+            \PYG{n}{model}\PYG{o}{.}\PYG{n}{scores}\PYG{o}{.}\PYG{n}{add}\PYG{p}{(}\PYG{n}{artm}\PYG{o}{.}\PYG{n}{SparsityPhiScore}\PYG{p}{(}\PYG{n}{name}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}sparsity\PYGZus{}phi\PYGZus{}score\PYGZsq{}}\PYG{p}{))}
+            \PYG{n}{model}\PYG{o}{.}\PYG{n}{scores}\PYG{o}{.}\PYG{n}{add}\PYG{p}{(}\PYG{n}{artm}\PYG{o}{.}\PYG{n}{SparsityThetaScore}\PYG{p}{(}\PYG{n}{name}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}sparsity\PYGZus{}theta\PYGZus{}score\PYGZsq{}}\PYG{p}{))}
+            \PYG{n}{model}\PYG{o}{.}\PYG{n}{scores}\PYG{o}{.}\PYG{n}{add}\PYG{p}{(}\PYG{n}{artm}\PYG{o}{.}\PYG{n}{TopTokensScore}\PYG{p}{(}\PYG{n}{name}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}top\PYGZhy{}tokens\PYGZsq{}}\PYG{p}{,} \PYG{n}{num\PYGZus{}tokens}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{))}
+
+            \PYG{k}{for} \PYG{n}{\PYGZus{}} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{param2}\PYG{p}{):}
+              \PYG{k}{if} \PYG{n}{param5} \PYG{o}{==} \PYG{l+m+mi}{1}\PYG{p}{:}
+                \PYG{n}{model}\PYG{o}{.}\PYG{n}{fit\PYGZus{}offline}\PYG{p}{(}\PYG{n}{bv}\PYG{p}{,} \PYG{n}{num\PYGZus{}collection\PYGZus{}passes}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{)}
+              \PYG{k}{elif} \PYG{n}{param5} \PYG{o}{==} \PYG{l+m+mi}{2}\PYG{p}{:}
+                \PYG{n}{model}\PYG{o}{.}\PYG{n}{fit\PYGZus{}offline}\PYG{p}{(}\PYG{n}{bv2}\PYG{p}{,} \PYG{n}{num\PYGZus{}collection\PYGZus{}passes}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{)}
+              \PYG{k}{else}\PYG{p}{:}
+                \PYG{n}{model}\PYG{o}{.}\PYG{n}{fit\PYGZus{}offline}\PYG{p}{(}\PYG{n}{bv3}\PYG{p}{,} \PYG{n}{num\PYGZus{}collection\PYGZus{}passes}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{)}
+
+            \PYG{n}{results}\PYG{o}{.}\PYG{n}{loc}\PYG{p}{[} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{results}\PYG{o}{.}\PYG{n}{index}\PYG{p}{)} \PYG{p}{]} \PYG{o}{=} \PYG{p}{[} \PYG{l+s+s1}{\PYGZsq{}LDA\PYGZsq{}}\PYG{p}{,} \PYG{n}{param1}\PYG{p}{,} \PYG{n}{param2}\PYG{p}{,} \PYG{n}{param3}\PYG{p}{,} \PYG{n}{param4}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+si}{\PYGZob{}0\PYGZcb{}}\PYG{l+s+s1}{\PYGZhy{}gramm\PYGZsq{}}\PYG{o}{.}\PYG{n}{format}\PYG{p}{(}\PYG{n}{param5}\PYG{p}{),}
+                                                  \PYG{n}{model}\PYG{o}{.}\PYG{n}{score\PYGZus{}tracker}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}perplexity\PYGZsq{}}\PYG{p}{]}\PYG{o}{.}\PYG{n}{last\PYGZus{}value}\PYG{p}{,}
+                                                  \PYG{n}{model}\PYG{o}{.}\PYG{n}{score\PYGZus{}tracker}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}sparsity\PYGZus{}phi\PYGZus{}score\PYGZsq{}}\PYG{p}{]}\PYG{o}{.}\PYG{n}{last\PYGZus{}value}\PYG{p}{,}
+                                                  \PYG{n}{model}\PYG{o}{.}\PYG{n}{score\PYGZus{}tracker}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}sparsity\PYGZus{}theta\PYGZus{}score\PYGZsq{}}\PYG{p}{]}\PYG{o}{.}\PYG{n}{last\PYGZus{}value} \PYG{p}{]}
+          
+\PYG{c+c1}{\PYGZsh{} Создаём и обучаем модель}
+\PYG{n}{make\PYGZus{}and\PYGZus{}train\PYGZus{}SPARSE}\PYG{p}{([}\PYG{l+m+mi}{8}\PYG{p}{],} \PYG{p}{[}\PYG{l+m+mi}{24}\PYG{p}{],} \PYG{p}{[}\PYG{l+m+mi}{7}\PYG{p}{],} \PYG{p}{[}\PYG{l+m+mf}{0.5}\PYG{p}{,} \PYG{l+m+mf}{1.0}\PYG{p}{,} \PYG{l+m+mf}{1.5}\PYG{p}{,} \PYG{l+m+mf}{2.0}\PYG{p}{])}
+\end{Verbatim}

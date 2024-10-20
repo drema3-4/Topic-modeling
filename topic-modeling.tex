@@ -889,6 +889,14 @@ pandas и numpy языка python.
 
 Модели BigARTM для своей работы требуют особого типа данных "--- vowpal\_wabbit.
 Данный тип данных представляет из себя следующую конструкцию.
+\begin{center}
+    \begin{tabular}{c c c c c}
+        doc\_1 & слово документа 1 & слово документа 1 & \dots & слово документа 1 \\
+        doc\_2 & слово документа 2 & слово документа 2 & \dots & слово документа 2 \\
+        \dots & \dots & \dots & \dots & \dots \\
+        doc\_n & слово документа n & слово документа n & \dots & слово документа n \\
+    \end{tabular}
+\end{center}
 
 Преобразовать excel таблицу с новостями к данному формату можно с помощью
 стандартных средств языка python и библиотеки pandas:
@@ -996,9 +1004,19 @@ pandas и numpy языка python.
 соответствующая таблица с результатами по моделям.
 
 В результате получаем следующую таблицу:
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width=18cm]{./images/3.png}
 
+    \includegraphics[width=18cm]{./images/4.png}
 
-~\cite{all, videolec4, python-book, bigartm-book, bigartm}
+    \includegraphics[width=18cm]{./images/5.png}
+	\caption{\label{fig:3}%
+	Результат работы модели PLSA}
+\end{figure}
+
+Таблица представлена частично из"=за её
+размера~\cite{all, videolec4, python-book, bigartm-book, bigartm}.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{LDA (модель с регуляризатором сглаживания)}
@@ -1027,8 +1045,15 @@ pandas и numpy языка python.
 соответствующая таблица с результатами по моделям.
 
 В результате получаем следующую таблицу:
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width=18cm]{./images/6.png}
+	\caption{\label{fig:4}%
+	Результат работы модели LDA}
+\end{figure}
 
-~\cite{all, videolec4, python-book, bigartm-book, bigartm}
+Полный код программы можно увидеть в
+приложениях~\cite{all, videolec4, python-book, bigartm-book, bigartm}.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Модель с регуляризатором разреживания}
@@ -1057,8 +1082,15 @@ pandas и numpy языка python.
 соответствующая таблица с результатами по моделям.
 
 В результате получаем следующую таблицу:
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width=18cm]{./images/6.png}
+	\caption{\label{fig:4}%
+	Результат работы модели с регуляризатором разреживания}
+\end{figure}
 
-~\cite{all, videolec4, python-book, bigartm-book, bigartm}
+Полный код программы можно увидеть в
+приложениях~\cite{all, videolec4, python-book, bigartm-book, bigartm}.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Модель с регуляризатором декоррелирования}
@@ -1087,8 +1119,15 @@ pandas и numpy языка python.
 соответствующая таблица с результатами по моделям.
 
 В результате получаем следующую таблицу:
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width=18cm]{./images/6.png}
+	\caption{\label{fig:4}%
+	Результат работы модели с регуляризатором сглаживания}
+\end{figure}
 
-~\cite{all, videolec4, python-book, bigartm-book, bigartm}
+Полный код программы можно увидеть в
+приложениях~\cite{all, videolec4, python-book, bigartm-book, bigartm}.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Выбор лучшей модели}
@@ -1098,17 +1137,38 @@ pandas и numpy языка python.
 После этого посмотрим на топ слов для каждой из моделей и решим, темы какой
 из моделей лучше интерпретируются.
 
+Приведём оценки качества по каждой из моделей:
+
+\textbf{PLSA}
+(ещё обучаюся модели)
+
+\textbf{LDA}
+(ещё обучаюся модели)
+
+\textbf{Модель с регуляризатором разреживания}
+(ещё обучаюся модели)
+
+\textbf{Модель с регуляризатором декоррелирования}
+(ещё обучаюся модели)
+
 Приведём списки слов для каждой из моделей:
 
 \textbf{PLSA}
+(ещё обучаюся модели)
 
 \textbf{LDA}
+(ещё обучаюся модели)
 
 \textbf{Модель с регуляризатором разреживания}
+(ещё обучаюся модели)
 
 \textbf{Модель с регуляризатором декоррелирования}
+(ещё обучаюся модели)
 
-~\cite{all, videolec4, python-book, bigartm-book, bigartm}
+Как видно из характеристик качества лучшей оказалась модель такая"=то (ещё обучается).
+А вот по интерпретируемости стала лучше такой модель. Результат хорошо коррелирует
+с количественными характеристиками датасета, так как
+(ещё обучаюся модели)~\cite{all, videolec4, python-book, bigartm-book, bigartm}.
 % Раздел "Заключение"
 \conclusion
 В данной работе были рассмотрены основные механизмы вероятностного
@@ -1132,9 +1192,24 @@ pandas и numpy языка python.
 
 % Окончание основного документа и начало приложений
 % Каждая последующая секция документа будет являться приложением
-%\appendix
+\appendix
 
-%\section{Нумеруемые объекты в приложении}
+\section{Код программы подготовки данных}
+\inputminted[fontsize=\small,encoding=utf8,outencoding=cp1251,breaklines=true,breakafter={.,\space}]{python3}{code/prepare_data.py}
 
+\section{Код программы PLSA модели}
+\inputminted[fontsize=\small,encoding=utf8,outencoding=cp1251,breaklines=true,breakafter={.,\space}]{python3}{code/PLSA.py}
+
+\section{Код программы LDA модели}
+\inputminted[fontsize=\small,encoding=utf8,outencoding=cp1251,breaklines=true,breakafter={.,\space}]{python3}{code/LDA.py}
+
+\section{Код программы модели с регуляризатором разреживания}
+\inputminted[fontsize=\small,encoding=utf8,outencoding=cp1251,breaklines=true,breakafter={.,\space}]{python3}{code/SPARSE.py}
+
+\section{Код программы модели с регуляризатором декоррелирования}
+\inputminted[fontsize=\small,encoding=utf8,outencoding=cp1251,breaklines=true,breakafter={.,\space}]{python3}{code/DECOR.py}
+
+\section{Ссылка на ноутбук с программой}
+\href{https://colab.research.google.com/drive/1DdeV_w03YHjKFUvIHHEFLzuy3p_4R8eA?usp=sharing}{topic\_modeling.ipynb}
 
 \end{document}
